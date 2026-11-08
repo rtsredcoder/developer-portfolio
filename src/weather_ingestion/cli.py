@@ -73,6 +73,7 @@ def main() -> int:
         # this is the where the primary part of the API calling is kicked off
         # run_ingestion belongs to ingest.py class which implements api_client.py which is the class responsible for actually making API calls
             # LEFT OFF HERE FOR TESTING
+        print("GOT HERE AFTER GIT")
         manifest = run_ingestion(settings)
         failures = sum(record["status"] == "failed" for record in manifest["records"])
         print(json.dumps({
