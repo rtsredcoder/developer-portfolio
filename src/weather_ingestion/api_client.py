@@ -16,6 +16,7 @@ class OpenMeteoError(RuntimeError):
 
 
 class OpenMeteoClient:
+
     def __init__(
         self,
         timeout_seconds: float = 20.0,
@@ -31,6 +32,14 @@ class OpenMeteoClient:
         self.session = session or requests.Session()
         self.sleep = sleep
         self.random_uniform = random_uniform
+
+        print("********** api_client.py --> Class OpenMeteoClient --> __init method__")
+        print("self.sleep")
+        print("self.sleep")
+        print(sleep)
+        
+        print("self.random_uniform")
+        print(self.random_uniform)
 
     def _get_json(self, endpoint: str, params: dict[str, Any]) -> tuple[dict, int]:
         for attempt in range(self.max_retries + 1):
@@ -49,6 +58,12 @@ class OpenMeteoClient:
                     raise OpenMeteoError(f"Invalid JSON returned by {endpoint}") from exc
                 if not isinstance(payload, dict):
                     raise OpenMeteoError(f"Expected JSON object from {endpoint}")
+
+                print("***************** in api_client.py --> _get_json() --> after calling GEOCODING_URL")
+                print("payload")
+                print(payload)
+                print("status")
+                print(status)                
                 return payload, status
             except (requests.Timeout, requests.ConnectionError) as exc:
                 if attempt >= self.max_retries:

@@ -11,6 +11,8 @@ from typing import Any, Callable
 from .api_client import OpenMeteoClient, FORECAST_URL, GEOCODING_URL
 from .config import Settings
 
+import sys
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,11 +34,16 @@ def run_ingestion(
     client: OpenMeteoClient | None = None,
     now: Callable[[], datetime] | None = None,
 ) -> dict[str, Any]:
+    print("***************** got into run_ingestion method")
     client = client or OpenMeteoClient(
         timeout_seconds=settings.timeout_seconds,
         max_retries=settings.max_retries,
         backoff_base_seconds=settings.backoff_base_seconds,
     )
+
+   
+
+   
     clock = now or (lambda: datetime.now(timezone.utc))
     started = clock().astimezone(timezone.utc)
     run_id = started.strftime("%Y%m%dT%H%M%S%fZ") + "-" + uuid.uuid4().hex[:8]
@@ -52,7 +59,16 @@ def run_ingestion(
         "records": [],
     }
 
+    print("***************: manifest after being initialized in ingest.py run_ingestion() method")
+    print(manifest)
+
+    print("                    ")
+
+    # for each location in settings.locations, pull data... this is the bulk of the program...
+    # left off here...  manifest object gets updated on each iteration...
     for requested_name in settings.locations:
+        print("************* iterating through settings.locations for city: ")
+        print(requested_name)
         location: dict[str, Any] | None = None
         try:
             location, geocode_params, geocode_status = client.geocode(requested_name)

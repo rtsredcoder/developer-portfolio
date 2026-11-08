@@ -43,7 +43,7 @@ def main() -> int:
     args = parser.parse_args()
     print("************ args")
     print(args)
-    # System.exit(0)
+    
     try:
         settings = Settings.from_env()
         # print("******************** settings variable after going to config.py --> Settings class --> from_env method")
@@ -72,8 +72,15 @@ def main() -> int:
 
         # this is the where the primary part of the API calling is kicked off
         # run_ingestion belongs to ingest.py class which implements api_client.py which is the class responsible for actually making API calls
-            # LEFT OFF HERE FOR TESTING
-        print("GOT HERE AFTER GIT")
+
+
+        # sys.exit(0)
+        print("********* About to call main run_ingestion() in ingest.py")
+        print("settings")
+        print(type(settings))
+        print(settings)
+
+        
         manifest = run_ingestion(settings)
         failures = sum(record["status"] == "failed" for record in manifest["records"])
         print(json.dumps({
