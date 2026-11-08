@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+src/weather_ingestion/__init__.py
+src/weather_ingestion/api_client.py
+src/weather_ingestion/cli.py
+src/weather_ingestion/config.py
+src/weather_ingestion/ingest.py
+src/weather_ingestion.egg-info/PKG-INFO
+src/weather_ingestion.egg-info/SOURCES.txt
+src/weather_ingestion.egg-info/dependency_links.txt
+src/weather_ingestion.egg-info/entry_points.txt
+src/weather_ingestion.egg-info/requires.txt
+src/weather_ingestion.egg-info/top_level.txt
+tests/test_api_client.py
+tests/test_ingest.py

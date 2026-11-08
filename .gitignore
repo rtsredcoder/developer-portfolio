@@ -1,0 +1,34 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.py[cod]
+data/raw/
+logs/
+*.pyo
+venv/
+env/
+.env.*
+.env.example
+
+data/*
+!data/.gitkeep
+
+*.csv
+*.parquet
+
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/

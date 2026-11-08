@@ -1,0 +1,10 @@
+services:
+  weather-ingestion:
+    build: .
+    env_file:
+      - .env
+    environment:
+      RAW_DATA_DIR: /data/raw
+    volumes:
+      - ./data/raw:/data/raw
+    command: ["--locations", "${LOCATIONS:-Toronto,Milton,Ottawa,Windsor}"]

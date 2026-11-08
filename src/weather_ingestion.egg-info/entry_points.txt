@@ -1,0 +1,2 @@
+[console_scripts]
+weather-ingest = weather_ingestion.cli:main
