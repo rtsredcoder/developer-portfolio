@@ -6,6 +6,8 @@ from typing import Any
 
 import requests
 
+import sys
+
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
 RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
@@ -42,18 +44,38 @@ class OpenMeteoClient:
         print(self.random_uniform)
 
     def _get_json(self, endpoint: str, params: dict[str, Any]) -> tuple[dict, int]:
+        print("f***************** in api_client.py --> class OpenMeteoClient() --> method _get_json() against URL: {endpoint}")
+        
+        print("endpoint")
+        print(endpoint)             # https://api.open-meteo.com/v1/forecasts
+        
+        print("params")
+        print(params)
+        print(params['name'])           #e.g. {'name': 'Toronto', 'count': 1, 'language': 'en', 'format': 'json'}
+
+        
         for attempt in range(self.max_retries + 1):
             try:
                 response = self.session.get(
                     endpoint, params=params, timeout=(self.timeout_seconds, self.timeout_seconds)
                 )
+
+               
+
+
                 status = response.status_code
                 if status in RETRYABLE_STATUS_CODES and attempt < self.max_retries:
                     self._backoff(attempt)
                     continue
                 response.raise_for_status()
+
+                print("response.json()")
+                print(response.json())          # {'results': [{'id': 6167865, 'name': 'Toronto', 'latitude': 43.70643, 'longitude': -79.39864, 'elevation': 161.0, 'feature_code': 'PPLA', 'country_code': 'CA', 'admin1_id': 6093943, 'timezone': 'America/Toronto', 'population': 2794356, 'country_id': 6251999, 'country': 'Canada', 'admin1': 'Ontario'}], 'generationtime_ms': 0.13911724}
+
+
+
                 try:
-                    payload = response.json()
+                    payload = response.json()     # {'results': [{'id': 6167865, 'name': 'Toronto', 'latitude': 43.70643, 'longitude': -79.39864, 'elevation': 161.0, 'feature_code': 'PPLA', 'country_code': 'CA', 'admin1_id': 6093943, 'timezone': 'America/Toronto', 'population': 2794356, 'country_id': 6251999, 'country': 'Canada', 'admin1': 'Ontario'}], 'generationtime_ms': 0.13911724}
                 except ValueError as exc:
                     raise OpenMeteoError(f"Invalid JSON returned by {endpoint}") from exc
                 if not isinstance(payload, dict):
@@ -64,7 +86,10 @@ class OpenMeteoClient:
                 print(payload)
                 print("status")
                 print(status)                
-                return payload, status
+                return payload, status          #return payload and status and then return to calling function
+
+
+            
             except (requests.Timeout, requests.ConnectionError) as exc:
                 if attempt >= self.max_retries:
                     raise OpenMeteoError(
@@ -84,9 +109,22 @@ class OpenMeteoClient:
         self.sleep(delay)
 
     def geocode(self, name: str) -> tuple[dict[str, Any], dict[str, Any], int]:
+        # takes a city name as string parameter, and returns a tuple of (location (dictionary), params (dictionary), status code)
+        print("****************** in api_client.py --> class OpenMeteoClient --> method geocode()**************")
+        print(f"name: {name}")
         params = {"name": name, "count": 1, "language": "en", "format": "json"}
         payload, status = self._get_json(GEOCODING_URL, params)
+
+        # payload = {'results': [{'id': 6167865, 'name': 'Toronto', 'latitude': 43.70643, 'longitude': -79.39864, 'elevation': 161.0, 'feature_code': 'PPLA', 'country_code': 'CA', 'admin1_id': 6093943, 'timezone': 'America/Toronto', 'population': 2794356, 'country_id': 6251999, 'country': 'Canada', 'admin1': 'Ontario'}], 'generationtime_ms': 0.13911724}
+
+        print(f"payload: {payload}")   #information about the city passed in
+        print(f"status: {status}")     # e.g. 200
+
         results = payload.get("results") or []
+
+        print("results")
+        print(results)    # [{'id': 6167865, 'name': 'Toronto', 'latitude': 43.70643, 'longitude': -79.39864, 'elevation': 161.0, 'feature_code': 'PPLA', 'country_code': 'CA', 'admin1_id': 6093943, 'timezone': 'America/Toronto', 'population': 2794356, 'country_id': 6251999, 'country': 'Canada', 'admin1': 'Ontario'}]
+
         if not results:
             raise OpenMeteoError(f"Location not found: {name}")
         result = results[0]
@@ -99,6 +137,16 @@ class OpenMeteoClient:
             "admin1": result.get("admin1"),
             "timezone": result.get("timezone"),
         }
+
+        print("location variable after being calculated in geocode method")
+        print(type(location))       # <class 'dict'>
+        print(location)    # {'location_id': 'toronto-43.70643--79.39864', 'name': 'Toronto', 'latitude': 43.70643, 'longitude': -79.39864, 'country': 'Canada', 'admin1': 'Ontario', 'timezone': 'America/Toronto'}
+
+        print("params variable in geocode method")
+        print(type(params))
+        print(params)   # {'name': 'Toronto', 'count': 1, 'language': 'en', 'format': 'json'}.... this was set above manually
+
+        print("****************** about to exit from OpenMeteoClient --> geocode method *******")
         return location, params, status
 
     @staticmethod

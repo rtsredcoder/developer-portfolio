@@ -25,6 +25,11 @@ def _write_json_exclusive(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     # x-mode refuses to overwrite even if a path collision occurs.
     with path.open("x", encoding="utf-8") as stream:
+
+        print("********** in ingest.py --> _write_json_exclusive method")  #LEFT OFF HERE...
+        print("payload")
+        print(payload)
+
         json.dump(payload, stream, ensure_ascii=False, indent=2)
         stream.write("\n")
 
@@ -64,19 +69,24 @@ def run_ingestion(
 
     print("                    ")
 
-    # for each location in settings.locations, pull data... this is the bulk of the program...
-    # left off here...  manifest object gets updated on each iteration...
+    # for each location in settings.locations (Settings class / instance variable), pull data... this is the bulk of the program...
+    # manifest object gets updated on each iteration...
     for requested_name in settings.locations:
         print("************* iterating through settings.locations for city: ")
         print(requested_name)
         location: dict[str, Any] | None = None
         try:
-            location, geocode_params, geocode_status = client.geocode(requested_name)
-            location_dir = run_dir / _slug(location["name"])
+            #this returns (dict, dict, status code from OpenMetoClient class geocode() method), it will have the location name, lat., long., ID, etc
+            location, geocode_params, geocode_status = client.geocode(requested_name)   
+            
+            location_dir = run_dir / _slug(location["name"])   # e.g. data/raw/run_id=20261110T115107818619Z-8e6ec7ee/toronto
+
             _write_json_exclusive(location_dir / "geocoding.json", {
                 "requested_name": requested_name,
                 "resolved_location": location,
             })
+
+          
             manifest["records"].append({
                 "ingestion_time": clock().astimezone(timezone.utc).isoformat(),
                 "location_id": location["location_id"],
