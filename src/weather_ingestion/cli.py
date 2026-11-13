@@ -80,7 +80,8 @@ def main() -> int:
         print(type(settings))
         print(settings)
 
-        
+
+        # this is the bulk of the ingestion process
         manifest = run_ingestion(settings)
         failures = sum(record["status"] == "failed" for record in manifest["records"])
         print(json.dumps({
