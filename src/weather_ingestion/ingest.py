@@ -129,16 +129,29 @@ def run_ingestion(
             })
             continue
 
-        # run through this for loop for both hourly and daily "data_kind" timeframes, pulling from https://geocoding-api.open-meteo.com/v1/search each time
+        # for the current city of outer for loop, run through this for loop for both hourly and daily "data_kind" timeframes, pulling from https://geocoding-api.open-meteo.com/v1/search each time
         for data_kind in ("hourly", "daily"):
             try:
-                payload, params, status = client.forecast(   #left off here, once it returns the tuple withthe hourly / daily data... see how it is writing it out...
+
+                print ("************** about to call forecast() method of api_client.py for city: ")
+                print(requested_name)
+                payload, params, status = client.forecast(   #once it returns the tuple with the hourly / daily data... see how it is writing it out...
                     location["latitude"], location["longitude"], data_kind, settings.forecast_days
                 )
 
 
+
+                print("*************** back in ingest.py.... after calling forecast() method of api_client.py, with the big response object  *****")
+                print("requested_name")
+                print(requested_name)
+         
+
                 artifact = location_dir / f"{data_kind}.json"
-                _write_json_exclusive(artifact, payload)
+                _write_json_exclusive(artifact, payload)    #left off here, about to confirm how it is writing,   add a sys.exit(0) so it stops on single city
+
+                sys.exit(0)
+
+
                 manifest["records"].append({
                     "ingestion_time": clock().astimezone(timezone.utc).isoformat(),
                     "location_id": location["location_id"],
